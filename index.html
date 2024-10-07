@@ -34,11 +34,10 @@
     const { useState, useEffect } = React;
 
     function ForwardCountTimer() {
-      // Set a fixed hosting date to today at 3:40 PM
-      const hostingDate = new Date(); // Get the current date and time
-      hostingDate.setHours(15); // Set hours to 15 (3 PM)
-      hostingDate.setMinutes(40); // Set minutes to 40
-      hostingDate.setSeconds(0); // Set seconds to 0
+      const hostingDate = new Date();
+      hostingDate.setHours(15);
+      hostingDate.setMinutes(40);
+      hostingDate.setSeconds(0);
 
       const calculateElapsedTime = () => {
         const now = new Date();
@@ -65,11 +64,10 @@
       return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
           <h2 className="text-lg font-semibold mb-3 text-gray-800 fade-in-scale">Rosby Resting..</h2>
-          <div className="flex space-x-4">
+          <div className="flex space-x-4 fade-in-scale">
             {Object.entries(timeElapsed).map(([unit, value]) => (
-              <div key={unit} className="flex flex-col items-center">
+              <div key={unit} className="flex flex-col items-center fade-in-scale">
                 <div className="flex space-x-0.5">
-                  {/* Handle Days with three boxes */}
                   {unit === "days" ? (
                     <>
                       <div className="w-8 h-10 bg-black border-4 border-gray-800 rounded-md flex items-center justify-center">
