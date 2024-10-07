@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Forward Count Timer</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <style>
+    @keyframes fadeInScale {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    .fade-in-scale {
+      animation: fadeInScale 0.5s ease-in-out forwards;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div id="root"></div>
@@ -19,36 +34,37 @@
     const { useState, useEffect } = React;
 
     function ForwardCountTimer() {
-      const [timeElapsed, setTimeElapsed] = useState({
-        days: 0,
-        hours: 0,
-        minutes: 0,
-        seconds: 0
-      });
+      // Retrieve or set the hosting date
+      const getHostingDate = () => {
+        const storedDate = localStorage.getItem('hostingDate');
+        if (storedDate) {
+          return new Date(storedDate);
+        } else {
+          const currentDate = new Date();
+          localStorage.setItem('hostingDate', currentDate);
+          return currentDate;
+        }
+      };
+
+      const hostingDate = getHostingDate();
+
+      const calculateElapsedTime = () => {
+        const now = new Date();
+        const elapsed = now - hostingDate;
+
+        return {
+          days: Math.floor(elapsed / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((elapsed / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((elapsed / (1000 * 60)) % 60),
+          seconds: Math.floor((elapsed / 1000) % 60),
+        };
+      };
+
+      const [timeElapsed, setTimeElapsed] = useState(calculateElapsedTime);
 
       useEffect(() => {
         const timer = setInterval(() => {
-          setTimeElapsed(prevTime => {
-            let newTime = { ...prevTime };
-            newTime.seconds += 1;
-
-            if (newTime.seconds === 60) {
-              newTime.seconds = 0;
-              newTime.minutes += 1;
-
-              if (newTime.minutes === 60) {
-                newTime.minutes = 0;
-                newTime.hours += 1;
-
-                if (newTime.hours === 24) {
-                  newTime.hours = 0;
-                  newTime.days += 1;
-                }
-              }
-            }
-
-            return newTime;
-          });
+          setTimeElapsed(calculateElapsedTime());
         }, 1000);
 
         return () => clearInterval(timer);
@@ -56,17 +72,34 @@
 
       return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-          <h2 className="text-lg font-semibold mb-3 text-gray-800">It's almost here</h2>
+          <h2 className="text-lg font-semibold mb-3 text-gray-800 fade-in-scale">Rosby Resting...</h2>
           <div className="flex space-x-4">
             {Object.entries(timeElapsed).map(([unit, value]) => (
               <div key={unit} className="flex flex-col items-center">
                 <div className="flex space-x-0.5">
-                  <div className="w-8 h-10 bg-black border-4 border-gray-800 rounded-md flex items-center justify-center">
-                    <span className="text-white text-lg font-bold">{Math.floor(value / 10)}</span>
-                  </div>
-                  <div className="w-8 h-10 bg-black border-4 border-gray-800 rounded-md flex items-center justify-center">
-                    <span className="text-white text-lg font-bold">{value % 10}</span>
-                  </div>
+                  {/* Handle Days with three boxes */}
+                  {unit === "days" ? (
+                    <>
+                      <div className="w-8 h-10 bg-black border-4 border-gray-800 rounded-md flex items-center justify-center">
+                        <span className="text-white text-lg font-bold">{Math.floor(value / 100) % 10}</span>
+                      </div>
+                      <div className="w-8 h-10 bg-black border-4 border-gray-800 rounded-md flex items-center justify-center">
+                        <span className="text-white text-lg font-bold">{Math.floor((value / 10) % 10)}</span>
+                      </div>
+                      <div className="w-8 h-10 bg-black border-4 border-gray-800 rounded-md flex items-center justify-center">
+                        <span className="text-white text-lg font-bold">{value % 10}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-8 h-10 bg-black border-4 border-gray-800 rounded-md flex items-center justify-center">
+                        <span className="text-white text-lg font-bold">{Math.floor(value / 10)}</span>
+                      </div>
+                      <div className="w-8 h-10 bg-black border-4 border-gray-800 rounded-md flex items-center justify-center">
+                        <span className="text-white text-lg font-bold">{value % 10}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <span className="text-xs mt-1 text-gray-600">{unit.charAt(0).toUpperCase() + unit.slice(1)}</span>
               </div>
